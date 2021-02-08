@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: heimdall-ingress
+  namespace: default
+spec:
+  rules:
+  - host: heimdall.{{ cluster_domain }}
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: heimdall
+            port: 
+              number: 80

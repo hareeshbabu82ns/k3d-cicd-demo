@@ -1,0 +1,52 @@
+apiVersion: k3d.io/v1alpha1
+kind: Simple
+name: {{ cluster_name | default("uat") }}
+servers: {{ cluster_masters | default(1)}}
+agents: {{ cluster_nodes | default(2) }}
+kubeAPI:
+  hostIP: "0.0.0.0"
+  hostPort: "{{ port_kube_api | default(6443) }}"
+# k3s:v1.19.7-k3s1 # k3s:v1.20.2-k3s1  # k3s:latest
+# image: docker.io/rancher/k3s:{{ k3s_version | default(latest) }}
+volumes:
+  - volume: "/home/{{ansible_ssh_user}}/cluster-data:/data"
+    nodeFilters:
+      - all
+  - volume: "/home/{{ansible_ssh_user}}/manifests/temp-pv.yaml:/var/lib/rancher/k3s/server/manifests/temp-pv.yaml"
+    nodeFilters:
+      - all
+  - volume: "/home/{{ansible_ssh_user}}/manifests/temp-pvc.yaml:/var/lib/rancher/k3s/server/manifests/temp-pvc.yaml"
+    nodeFilters:
+      - all
+ports:
+  - port: {{ port_kube_http }}:80
+    nodeFilters:
+      - loadbalancer
+  - port: 0.0.0.0:{{ port_kube_https }}:443
+    nodeFilters:
+      - loadbalancer
+# env:
+#   - envVar: bar=baz
+#     nodeFilters:
+#       - all
+# labels:
+#   - label: foo=bar
+#     nodeFilters:
+#       - server[0]
+#       - loadbalancer
+options:
+  k3d:
+    wait: true
+    timeout: "60s"
+    disableLoadbalancer: false
+    disableImageVolume: false
+  k3s:
+    extraServerArgs:
+      - --tls-san=0.0.0.0
+      - --tls-san={{ansible_host}}
+      - --cluster-init
+      # - --disable=traefik
+    extraAgentArgs: []
+  kubeconfig:
+    updateDefaultKubeconfig: true
+    switchCurrentContext: true

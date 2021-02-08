@@ -7,3 +7,6 @@
     - {role: swag, tags: 'swag'}
     - {role: registry, tags: 'registry'}
     - {role: drone, tags: 'drone'}
+    - {role: k3d/master, tags: 'k3d'}
+    - {role: k3d/reset, tags: 'k3d-reset'}
+    - {role: k3d/helms, tags: 'helms'}

@@ -1,0 +1,6 @@
+persistence:
+  config:
+    enabled: true
+    skipuninstall: true
+    existingClaim: pvc-tmp
+    storageClass: manual

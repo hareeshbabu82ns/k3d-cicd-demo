@@ -1,0 +1,42 @@
+---
+- name: Add Helm Chart Repos
+  community.kubernetes.helm_repository:
+    name: "{{ item.name }}"
+    repo_url: "{{ item.repo_url }}"
+  loop:
+    - { name: 't3n', repo_url: 'https://storage.googleapis.com/t3n-helm-charts' }
+    - { name: 'k8s-at-home', repo_url: 'https://k8s-at-home.com/charts' }
+
+- name: Deploy Helm - Nginx
+  community.kubernetes.helm:
+    name: nginx
+    chart_ref: t3n/nginx
+    chart_version: 0.1.1
+    release_namespace: default
+
+- name: Apply Nginx Ingress
+  community.kubernetes.k8s:
+    state: present
+    definition: "{{ lookup('template', 'nginx-ingress.yaml') | from_yaml }}"
+    # template: 'heimdall-ingress.yaml'
+  tags:
+    - nginx
+    - ingress    
+
+- name: Deploy Helm - Heimdall
+  community.kubernetes.helm:
+    name: heimdall
+    chart_ref: k8s-at-home/heimdall
+    chart_version: 4.2.1
+    release_namespace: default
+    values: "{{ lookup('template', 'heimdall-helm-values.yaml') | from_yaml }}"
+    # wait: true
+
+- name: Apply Heimdall Ingress
+  community.kubernetes.k8s:
+    state: present
+    definition: "{{ lookup('template', 'heimdall-ingress.yaml') | from_yaml }}"
+    # template: 'heimdall-ingress.yaml'
+  tags:
+    - heimdall
+    - ingress

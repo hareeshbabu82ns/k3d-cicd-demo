@@ -14,6 +14,7 @@ docker_user: hdocker
 docker_pass: "{{vault_docker_pass}}"
 docker_domain: docker # becomes docker.example.com
 drone_domain: drone # becomes drone.example.com
+docker_server: "https://{{drone_domain}}.{{server_domain}}"
 aws_dns_email: "{{vault_aws_dns_email}}"
 aws_r53_access_key_id: "{{vault_aws_r53_access_key_id}}"
 aws_r53_secret_access_key: "{{vault_aws_r53_secret_access_key}}"

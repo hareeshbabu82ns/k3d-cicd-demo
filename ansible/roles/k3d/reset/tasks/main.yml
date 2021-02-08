@@ -1,0 +1,19 @@
+---
+- name: Delete Cluster {{ cluster_name }}
+  shell:
+    cmd: k3d cluster delete {{ cluster_name }}
+
+- name: Remove cluster-data directory
+  ansible.builtin.file:
+    path: ~{{ansible_ssh_user}}/cluster-data
+    state: absent
+
+- name: Remove manifests directory
+  ansible.builtin.file:
+    path: ~{{ansible_ssh_user}}/manifests
+    state: absent
+
+- name: Remove config file
+  ansible.builtin.file:
+    path: ~{{ansible_ssh_user}}/k3d-config.yaml
+    state: absent

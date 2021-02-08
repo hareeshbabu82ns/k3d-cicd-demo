@@ -1,0 +1,3 @@
+---
+- include: install.yml
+- include: post_install.yml
