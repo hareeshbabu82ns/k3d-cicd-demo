@@ -1,0 +1,22 @@
+---
+- name: Read Stable Tag
+  register: kubectl_stable_tag
+  uri:
+    url: https://dl.k8s.io/release/stable.txt
+    method: GET
+    return_content: yes
+
+- name: Download kubectl binary x64
+  get_url:
+    url: https://dl.k8s.io/release/{{ kubectl_stable_tag.content }}/bin/linux/amd64/kubectl
+    # checksum: sha256:https://github.com/rancher/k3d/releases/download/{{ k3d_version }}/sha256sum-amd64.txt
+    dest: /usr/local/bin/kubectl
+    owner: root
+    group: root
+    mode: 0755
+  when: ansible_facts.architecture == "x86_64"
+
+- name: Install Helm
+  shell:
+    cmd: curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+    warn: false

@@ -1,0 +1,91 @@
+---
+- name: remove old Docker install
+  apt:
+    pkg: 
+    - docker
+    - docker-engine
+    - docker.io
+    - containerd
+    - runc
+    state: absent
+
+- name: remove old Docker install - snap
+  shell:
+    cmd: snap remove docker
+
+- name: Install a list of support packages
+  apt:
+    pkg:
+    - apt-transport-https
+    - ca-certificates
+    - curl
+    - gnupg-agent
+    - software-properties-common
+    state: present
+
+# - name: Add Docker’s official GPG key
+#   shell:
+#     cmd: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+
+- name: Download Docker’s official GPG key
+  get_url:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    dest: "/tmp/docker_pgp.key"
+    mode: '0440'
+
+- name: Add Docker’s official GPG key
+  shell:
+    cmd: apt-key add "/tmp/docker_pgp.key"
+
+- name: lsb release
+  register: lsb_release
+  command: lsb_release -cs
+
+- name: add repository
+  apt_repository:
+    repo: deb https://download.docker.com/linux/ubuntu {{lsb_release.stdout_lines[0]}} stable
+    state: present
+
+# - name: add repository
+#   command: add-apt-repository "deb https://download.docker.com/linux/ubuntu {{lsb_release.stdout_lines[0]}} stable"
+
+- name: Install docker
+  apt:
+    pkg:
+    - docker-ce
+    - docker-ce-cli
+    - containerd.io
+    state: present
+
+- name: add Docker Group
+  shell:
+    cmd: groupadd docker
+  ignore_errors: yes
+
+- name: add user to Docker Group
+  shell:
+    cmd: usermod -aG docker {{ansible_ssh_user}}
+  ignore_errors: yes
+
+# - name: apply changes to group
+#   ansible.builtin.shell:
+#     cmd: newgrp docker
+#   ignore_errors: yes
+
+- name: update owner of docker
+  file:
+    path: /usr/bin/docker
+    group: docker
+
+- name: update owner of docker socket
+  file:
+    path: /var/run/docker.sock
+    group: docker
+
+- name: restart docker service
+  shell:
+    cmd: systemctl restart docker
+
+# - name: restart docker service - snap
+#   ansible.builtin.shell:
+#     cmd: systemctl restart snap.docker.dockerd.service

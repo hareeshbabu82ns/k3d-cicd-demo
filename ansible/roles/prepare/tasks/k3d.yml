@@ -1,0 +1,23 @@
+---
+- name: Download k3d binary x64
+  get_url:
+    url: https://github.com/rancher/k3d/releases/download/{{ k3d_version }}/k3d-linux-amd64
+    # checksum: sha256:https://github.com/rancher/k3d/releases/download/{{ k3d_version }}/sha256sum-amd64.txt
+    dest: /usr/local/bin/k3d
+    owner: root
+    group: root
+    mode: 0755
+  when: ansible_facts.architecture == "x86_64"
+
+- name: Download k3d binary arm64
+  get_url:
+    url: https://github.com/rancher/k3d/releases/download/{{ k3d_version }}/k3d-linux-arm64
+    # checksum: sha256:https://github.com/rancher/k3d/releases/download/{{ k3d_version }}/sha256sum-amd64.txt
+    dest: /usr/local/bin/k3d
+    owner: root
+    group: root
+    mode: 0755
+  when:
+    - ( ansible_facts.architecture is search("arm") and
+        ansible_facts.userspace_bits == "64" ) or
+      ansible_facts.architecture is search("aarch64")

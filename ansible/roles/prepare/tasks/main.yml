@@ -1,0 +1,5 @@
+- include: upgrade.yml
+- include: docker.yml
+- include: kubectl.yml
+- include: k3d.yml
+- include: pip.yml

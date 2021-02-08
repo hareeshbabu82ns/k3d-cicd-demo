@@ -1,0 +1,15 @@
+become_pass: "{{vault_become_pass}}"
+cluster_name: utmp
+root_domain: "{{vault_root_domain}}" #example.com
+cluster_domain: "uat.kube.{{root_domain}}" #uat.kube => becomes uat.kube.example.com
+k3d_version: v4.0.0
+k3s_version: v1.19.7-k3s1
+cluster_masters: 1
+cluster_nodes: 2
+# port_kube_api: 6443
+port_http: 880
+port_https: 8443
+docker_user: hdocker
+docker_pass: "{{vault_docker_pass}}"
+docker_domain: docker # becomes docker.example.com
+drone_domain: drone # becomes drone.example.com
