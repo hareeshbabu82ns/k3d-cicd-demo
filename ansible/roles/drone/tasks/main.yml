@@ -1,0 +1,11 @@
+---
+- include: up.yml
+  tags: drone-up
+
+- include: down.yml
+  name: shuts down and removes only template directories
+  tags: drone-down
+
+- include: teardown.yml
+  name: shuts down and removes config/data directories
+  tags: drone-teardown

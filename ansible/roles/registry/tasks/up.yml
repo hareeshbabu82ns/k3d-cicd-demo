@@ -1,0 +1,78 @@
+---
+- name: create data folders
+  file:
+    path: "{{item}}"
+    state: directory
+  loop:
+  - "{{app_data_dir}}"
+  - "{{app_data_dir}}/registry"
+  - "{{app_data_dir}}/auth"
+
+- include_tasks: init_templates.yml
+
+- name: install pip dependencies
+  pip:
+    name:
+      - passlib
+
+# - name: Create Registry Password file
+#   community.general.htpasswd:
+#     path: "{{ app_data_dir }}/auth/htpasswd"
+#     name: "{{vault_registry_user}}"
+#     password: "{{vault_registry_pwd}}"
+#     # owner: root
+#     # group: www-data
+#     mode: 0640
+
+- name: Generate Registy Password
+  command: docker run --rm -ti xmartlabs/htpasswd {{docker_user}} {{docker_pass}}
+  register: registry_pass
+
+# - name: pass generated
+#   debug: var=registry_pass.stdout_lines[0]
+
+- name: Create Registry Password file
+  copy:
+    content: "{{registry_pass.stdout_lines[0]}}"
+    dest: "{{ app_data_dir }}/auth/htpasswd"
+#     # owner: root
+#     # group: www-data
+    mode: 0640
+
+- name: start
+  command: docker-compose -f {{ app_templates_dir }}/docker-compose.yaml up -d
+
+## setup reverse-proxy
+- name: copy reverse-proxy conf
+  ansible.builtin.copy:
+    src: "{{ app_templates_dir }}/subdomain.conf"
+    remote_src: yes
+    dest: "{{reverse_proxy_conf_dir}}/{{server_sub_domain}}.subdomain.conf"
+    owner: nobody
+    group: users
+    mode: u=rw,g=r,o=r
+
+# - name: install pip dependencies
+#   pip:
+#     name:
+#       - boto
+
+# - name: Add Subdomain {{server_sub_domain}} to route53
+#   community.aws.route53:
+#     state: present
+#     zone: "{{server_domain}}"
+#     record: "{{server_sub_domain}}.{{server_domain}}"
+#     type: CNAME
+#     value: "{{server_ddns_cname}}"
+#     ttl: 60
+#     aws_access_key: "{{aws_r53_access_key_id}}"
+#     aws_secret_key: "{{aws_r53_secret_access_key}}"
+#     # # Routing policy
+#     # identifier: "host1@www"
+#     # weight: 100
+#     # wait: yes
+
+- name: Restart Reverse Proxy {{reverse_proxy_name}}
+  command: docker restart {{reverse_proxy_name}}
+
+- include_tasks: cleanup_templates.yml

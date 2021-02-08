@@ -3,3 +3,9 @@
   apt:
     update_cache: yes
     upgrade: 'yes'
+
+- name: Install packages
+  apt:
+    pkg:
+    - sqlite3
+    state: present    

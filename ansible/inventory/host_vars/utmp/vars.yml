@@ -1,15 +1,25 @@
 become_pass: "{{vault_become_pass}}"
 cluster_name: utmp
-root_domain: "{{vault_root_domain}}" #example.com
-cluster_domain: "uat.kube.{{root_domain}}" #uat.kube => becomes uat.kube.example.com
+server_domain: "{{vault_root_domain}}" #example.com
+cluster_sub_domain: "uat.kube"
+cluster_domain: "{{cluster_sub_domain}}.{{server_domain}}" # becomes uat.kube.example.com
 k3d_version: v4.0.0
 k3s_version: v1.19.7-k3s1
 cluster_masters: 1
 cluster_nodes: 2
 # port_kube_api: 6443
-port_http: 880
-port_https: 8443
+port_kube_http: 880
+port_kube_https: 8443
 docker_user: hdocker
 docker_pass: "{{vault_docker_pass}}"
 docker_domain: docker # becomes docker.example.com
 drone_domain: drone # becomes drone.example.com
+aws_dns_email: "{{vault_aws_dns_email}}"
+aws_r53_access_key_id: "{{vault_aws_r53_access_key_id}}"
+aws_r53_secret_access_key: "{{vault_aws_r53_secret_access_key}}"
+appdata_dir: "~{{ansible_ssh_user}}/appdata"
+docker_network: "proxynet"
+reverse_proxy_name: "swag"
+reverse_proxy_dir: "{{appdata_dir}}/{{reverse_proxy_name}}"
+reverse_proxy_conf_dir: "{{reverse_proxy_dir}}/nginx/proxy-confs"
+reverse_proxy_dns_conf_dir: "{{reverse_proxy_dir}}/dns-conf"

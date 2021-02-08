@@ -89,3 +89,22 @@
 # - name: restart docker service - snap
 #   ansible.builtin.shell:
 #     cmd: systemctl restart snap.docker.dockerd.service
+
+- name: install docker compose
+  get_url:
+    url: https://github.com/docker/compose/releases/download/1.28.2/docker-compose-Linux-x86_64
+    dest: /usr/local/bin/docker-compose
+    owner: "{{ansible_ssh_user}}"
+    group: docker
+    mode: "u=rwx,g=rx,o="
+  when: ansible_facts.architecture == "x86_64"
+
+- name: create app data folder
+  file:
+    path: "{{appdata_dir}}"
+    state: directory
+    owner: "{{ansible_ssh_user}}"
+    mode: "u=rwx,g=rx,o="
+
+- name: create {{docker_network}} network
+  command: docker network create {{docker_network}}

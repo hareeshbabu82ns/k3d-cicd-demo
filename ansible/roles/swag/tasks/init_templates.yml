@@ -1,0 +1,22 @@
+---
+- name: create templates folder
+  file:
+    path: "{{item}}"
+    state: directory
+  loop:
+  - "{{app_templates_dir}}"
+
+- name: copy templates
+  template:
+    src: "{{ item }}"
+    dest: "{{ app_templates_dir }}/{{ item | basename }}"
+  with_fileglob:
+    - ../templates/*
+
+# - name: debug
+#   debug:
+#     var: ansible_remote_tmp
+
+# - name: debug
+#   debug:
+#     msg: Facts {{ ansible_facts }}

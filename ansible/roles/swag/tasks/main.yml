@@ -1,0 +1,11 @@
+---
+- include: up.yml
+  tags: swag-up
+
+- include: down.yml
+  name: shuts down and removes only template directories
+  tags: swag-down
+
+- include: teardown.yml
+  name: shuts down and removes config/data directories
+  tags: swag-teardown

@@ -1,0 +1,7 @@
+---
+- include_tasks: init_templates.yml
+
+- name: shutdown
+  command: docker-compose -f {{ app_templates_dir }}/docker-compose.yaml down
+
+- include_tasks: cleanup_templates.yml

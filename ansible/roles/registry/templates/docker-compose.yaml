@@ -1,0 +1,24 @@
+version: "3.2"
+services:
+
+  # docker run --rm --entrypoint htpasswd registry:2 -Bbn testuser testpassword > ./auth/htpasswd
+  # docker run --rm -ti xmartlabs/htpasswd <username> <password>
+
+  {{app_name}}:
+    container_name: {{app_name}}
+    image: registry:{{image_version}}
+    ports:
+      - "{{port_http}}:{{app_port}}"
+    env_file:
+      - "{{ app_templates_dir }}/common.env"
+      - "{{ app_templates_dir }}/current.env"
+    volumes:
+      - "{{ app_data_dir }}/registry:/var/lib/registry"
+      - "{{ app_data_dir }}/auth:/auth"
+    networks:
+      - "{{docker_network}}"
+    restart: unless-stopped
+
+networks:
+  "{{docker_network}}":
+     external: true

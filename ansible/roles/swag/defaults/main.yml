@@ -1,0 +1,8 @@
+port_http: 180 # host port to bind
+port_https: 1443
+app_name: "{{reverse_proxy_name}}"
+app_port: 80 #internal app port
+app_port_https: 443 #internal app port
+image_version: version-1.12.0
+app_data_dir: "{{appdata_dir}}/{{app_name}}"
+app_templates_dir: "{{ app_data_dir }}/templates"

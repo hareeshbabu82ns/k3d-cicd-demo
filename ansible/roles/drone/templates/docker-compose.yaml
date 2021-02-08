@@ -1,0 +1,38 @@
+version: "3.2"
+services:
+
+  {{app_name}}:
+    container_name: {{app_name}}
+    image: drone/drone:{{drone_image_version}}
+    env_file:
+      - "{{ app_templates_dir }}/common.env"
+      - "{{ app_templates_dir }}/current_server.env"
+    volumes:
+      - "{{app_data_dir}}/server:/data:rw"
+    ports:
+      - '{{port_http}}:80/tcp'
+      - '{{port_https}}:443/tcp'
+    networks:
+      - "{{docker_network}}"
+    restart: unless-stopped
+   
+  {{app_runner_name}}:
+    container_name: {{app_runner_name}}
+    image: drone/drone-runner-docker:{{drone_runner_image_version}}
+    env_file:
+      - "{{ app_templates_dir }}/common.env"
+      - "{{ app_templates_dir }}/current_runner.env"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - "{{app_data_dir}}/runner:/config:rw"
+    ports:
+      - '{{port_runner}}:3000/tcp'
+    networks:
+      - "{{docker_network}}"
+    restart: unless-stopped
+    depends_on:
+      - {{app_name}}
+
+networks:
+  "{{docker_network}}":
+     external: true

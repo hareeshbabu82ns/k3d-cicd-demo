@@ -1,0 +1,15 @@
+---
+- include_tasks: down.yml
+
+- name: cleanup data directory
+  file:
+    path: "{{ app_data_dir }}"
+    state: absent
+
+- name: delete reverse-proxy conf
+  file:
+    name: "{{reverse_proxy_conf_dir}}/{{server_sub_domain}}.subdomain.conf"
+    state: absent
+
+- name: Restart Reverse Proxy {{reverse_proxy_name}}
+  command: docker restart {{reverse_proxy_name}} 

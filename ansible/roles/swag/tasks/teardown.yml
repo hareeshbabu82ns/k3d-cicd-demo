@@ -1,0 +1,7 @@
+---
+- include_tasks: down.yml
+
+- name: cleanup data directory
+  file:
+    path: "{{ app_data_dir }}"
+    state: absent

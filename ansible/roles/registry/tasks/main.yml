@@ -1,0 +1,11 @@
+---
+- include: up.yml
+  tags: registry-up
+
+- include: down.yml
+  name: shuts down and removes only template directories
+  tags: registry-down
+
+- include: teardown.yml
+  name: shuts down and removes config/data directories
+  tags: registry-teardown

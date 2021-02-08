@@ -1,0 +1,5 @@
+---
+- name: cleanup templates directory
+  file:
+    path: "{{ app_templates_dir }}"
+    state: absent

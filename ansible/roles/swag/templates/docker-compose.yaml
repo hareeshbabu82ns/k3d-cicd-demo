@@ -1,0 +1,23 @@
+version: "3.2"
+services:
+
+  {{app_name}}:
+    container_name: {{app_name}}
+    image: linuxserver/swag:{{image_version}}
+    cap_add:
+      - NET_ADMIN    
+    ports:
+      - "{{port_http}}:{{app_port}}"
+      - "{{port_https}}:{{app_port_https}}"
+    env_file:
+      - "{{ app_templates_dir }}/common.env"
+      - "{{ app_templates_dir }}/current.env"
+    volumes:
+      - "{{ app_data_dir }}:/config"
+    networks:
+      - "{{docker_network}}"
+    restart: unless-stopped
+
+networks:
+  "{{docker_network}}":
+     external: true

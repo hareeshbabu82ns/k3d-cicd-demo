@@ -1,0 +1,42 @@
+---
+- name: create data folders
+  file:
+    path: "{{item}}"
+    state: directory
+    owner: "{{ansible_ssh_user}}"
+    mode: "u=rwx,g=rx,o="    
+  loop:
+  - "{{app_data_dir}}"
+  - "{{reverse_proxy_conf_dir}}"
+  - "{{reverse_proxy_dns_conf_dir}}"
+
+- include_tasks: init_templates.yml
+
+## setup reverse-proxy (only external services which do not yet maintain their configs)
+- name: copy reverse-proxy conf
+  ansible.builtin.copy:
+    src: "{{ app_templates_dir }}/{{item}}.subdomain.conf"
+    remote_src: yes
+    dest: "{{reverse_proxy_conf_dir}}/{{item}}.subdomain.conf"
+    owner: nobody
+    group: users
+    mode: u=rw,g=r,o=r
+  loop:
+    - uat-kube
+
+- name: copy dns conf
+  ansible.builtin.copy:
+    src: "{{ app_templates_dir }}/route53.ini"
+    remote_src: yes
+    dest: "{{reverse_proxy_dns_conf_dir}}/route53.ini"
+    owner: nobody
+    group: users
+    mode: u=rw,g=r,o=r
+
+- name: start
+  command: docker-compose -f {{ app_templates_dir }}/docker-compose.yaml up -d
+
+# - name: Restart Reverse Proxy {{reverse_proxy_name}}
+#   command: docker restart {{reverse_proxy_name}}
+
+- include_tasks: cleanup_templates.yml

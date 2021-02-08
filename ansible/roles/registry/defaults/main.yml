@@ -1,0 +1,8 @@
+port_http: 33294 # host port to bind
+# port_https: 9443
+server_sub_domain: "docker"
+app_name: "docker-registry"
+app_port: 5000 #internal app port
+image_version: 2
+app_data_dir: "{{appdata_dir}}/registry"
+app_templates_dir: "{{ app_data_dir }}/templates"
