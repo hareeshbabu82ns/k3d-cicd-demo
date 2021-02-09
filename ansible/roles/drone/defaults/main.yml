@@ -4,7 +4,7 @@ port_runner: 31984
 github_client_id: "{{vault_github_client_id}}"
 github_client_secret: "{{vault_github_client_secret}}"
 rpc_secret: "{{vault_rpc_secret}}"
-github_user: "{{vault_github_user}}"
+github_user: "hareeshbabu82ns"
 server_sub_domain: "drone"
 drone_image_version: 1
 drone_runner_image_version: 1

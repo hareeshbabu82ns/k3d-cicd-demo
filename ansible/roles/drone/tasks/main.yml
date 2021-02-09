@@ -14,12 +14,25 @@
   name: install drone cli
   tags: drone-cli
 
+- name: fetch drone token
+  tags:
+    - drone-secrets
+  command: >-
+    sqlite3 {{app_data_dir}}/server/database.sqlite \
+      "select user_hash from users where user_login='{{github_user}}'"
+  ignore_errors: yes
+  register: github_user_db
+
+- debug: var=github_user_db
+  tags:
+    - drone-secrets
+
 - include: set-secrets.yml
   name: set project secrets (per project)
   tags: drone-secrets
   vars:
-    repo_user: hareeshbabu82ns
+    repo_user: "{{github_user}}"
     git_repo: k3d-cicd-demo
   environment:
     DRONE_SERVER: "{{drone_server}}"
-    DRONE_TOKEN: "{{drone_api_key}}"  
+    DRONE_TOKEN: "{{github_user_db.stdout | default(drone_api_key)}}"  
