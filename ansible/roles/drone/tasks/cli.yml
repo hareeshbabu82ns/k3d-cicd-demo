@@ -1,0 +1,26 @@
+---
+- name: Download drone-cli binary x64
+  get_url:
+    url: https://github.com/drone/drone-cli/releases/latest/download/drone_linux_amd64.tar.gz
+    # checksum: sha256:https://github.com/drone/drone-cli/releases/latest/download/drone_checksums.txt
+    dest: "~{{ansible_ssh_user}}/drone.tar.gz"
+    mode: "u=rw,g=r,o=r"
+  when: ansible_facts.architecture == "x86_64"
+
+- name: Extract drone.tgz
+  unarchive:
+    src: "~{{ansible_ssh_user}}/drone.tar.gz"
+    dest: "~{{ansible_ssh_user}}"
+    remote_src: true
+
+- name: install drone exe to bin
+  command: install -t /usr/local/bin ~{{ansible_ssh_user}}/drone
+  become: yes
+
+- name: clean up
+  file:
+    name: "~{{ansible_ssh_user}}/{{item}}"
+    state: absent
+  loop:
+    - drone.tar.gz
+    - drone

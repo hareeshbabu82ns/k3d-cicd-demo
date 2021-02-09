@@ -1,0 +1,102 @@
+kind: pipeline
+name: react-nginx
+
+steps:
+- name: react-nginx - test
+  image: node:14-alpine
+  commands:
+  - ls -al
+  - cd react-nginx
+  - yarn install
+  - yarn test
+  # when:
+  #   branch:
+  #   - react-nginx
+
+# For Custom Docker Registry
+- name: react-nginx - build docker image
+  image: docker:latest
+  volumes:
+    - name: docker_sock
+      path: /var/run/docker.sock
+  environment:
+    DUSER:
+      from_secret: docker_user
+    DPASS:
+      from_secret: docker_pass
+    SERVER_DOMAIN:
+      from_secret: server_domain
+  commands:
+    # - echo '192.168.86.40 unraid registry.unraid' | tee -a /etc/hosts
+    # - mkdir /etc/docker
+    # - docker system info
+    - env
+    - docker login -p $DPASS -u $DUSER docker.$SERVER_DOMAIN
+    - cd react-nginx
+    - docker build --no-cache -t docker.$SERVER_DOMAIN/test/react-nginx:latest -f Dockerfile .
+    - docker push docker.$SERVER_DOMAIN/test/react-nginx:latest
+  # when:
+  #   branch:
+  #   - react-nginx
+
+## Following works when publishing from root of the repository
+# - name: build plugins/docker image
+#   image: plugins/docker
+#   settings:
+#     tags:
+#       - latest
+#     # dockerfile: react-nginx/Dockerfile
+#     repo: test/react-nginx    
+#     registry: registry.unraid:33294
+#     insecure: true
+
+- name: react-nginx - deploy
+  image: sinlead/drone-kubectl
+  settings:
+    kubernetes_server:
+      from_secret: k8s_server
+    kubernetes_cert:
+      from_secret: k8s_cert
+    kubernetes_token:
+      from_secret: k8s_token
+  environment:
+    CLUSTER_DOMAIN:
+      from_secret: cluster_domain
+    SERVER_DOMAIN:
+      from_secret: server_domain      
+  commands:
+    - cd react-nginx
+    - sed -i "s/{{cluster_domain}}/$CLUSTER_DOMAIN/g"  ./k8s/deployment-react-nginx.yaml
+    - sed -i "s/{{server_domain}}/$SERVER_DOMAIN/g"  ./k8s/deployment-react-nginx.yaml
+    - kubectl apply -f k8s/deployment-react-nginx.yaml --insecure-skip-tls-verify
+    - kubectl rollout restart deployment/react-nginx --insecure-skip-tls-verify
+  # when:
+  #   branch:
+  #   - react-nginx
+
+# Finally common tasks for all steps
+- name: notify
+  image: plugins/slack
+  settings:
+    channel: pipelines
+    webhook:
+      from_secret: pipeline_notifier
+    icon_url: https://unsplash.it/48/48/?random
+    # image_url: https://unsplash.it/256/256/?random
+    template: >
+      {{#if build.pull }}
+        *{{#success build.status}}✔{{ else }}✘{{/success}} {{ uppercasefirst build.status }}*: <https://github.com/{{ repo.owner }}/{{ repo.name }}/pull/{{ build.pull }}|Pull Request #{{ build.pull }}>
+      {{else}}
+        *{{#success build.status}}✔{{ else }}✘{{/success}} {{ uppercasefirst build.status }}: Build #{{ build.number }}* (type: `{{ build.event }}`)
+      {{/if}}
+      Commit: <https://github.com/{{ repo.owner }}/{{ repo.name }}/commit/{{ build.commit }}|{{ truncate build.commit 8 }}>
+      Branch: <https://github.com/{{ repo.owner }}/{{ repo.name }}/commits/{{ build.branch }}|{{ build.branch }}>
+      Author: {{ build.author }}
+      <{{ build.link }}|Visit build page ↗>
+  when:
+    status: [ success, failure ]
+
+volumes:
+  - name: docker_sock
+    host:
+      path: /var/run/docker.sock

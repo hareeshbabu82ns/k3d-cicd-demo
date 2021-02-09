@@ -1,0 +1,13 @@
+/node_modules
+/build
+.git
+*.md
+.gitignore
+
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+.eslintcache

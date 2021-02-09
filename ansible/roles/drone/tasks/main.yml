@@ -9,3 +9,17 @@
 - include: teardown.yml
   name: shuts down and removes config/data directories
   tags: drone-teardown
+
+- include: cli.yml
+  name: install drone cli
+  tags: drone-cli
+
+- include: set-secrets.yml
+  name: set project secrets (per project)
+  tags: drone-secrets
+  vars:
+    repo_user: hareeshbabu82ns
+    git_repo: k3d-cicd-demo
+  environment:
+    DRONE_SERVER: "{{drone_server}}"
+    DRONE_TOKEN: "{{drone_api_key}}"  
