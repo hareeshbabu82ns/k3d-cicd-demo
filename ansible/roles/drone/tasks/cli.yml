@@ -7,6 +7,16 @@
     mode: "u=rw,g=r,o=r"
   when: ansible_facts.architecture == "x86_64"
 
+- name: Download drone-cli binary arm64
+  get_url:
+    url: https://github.com/drone/drone-cli/releases/latest/download/drone_linux_arm64.tar.gz
+    dest: "~{{ansible_ssh_user}}/drone.tar.gz"
+    mode: "u=rw,g=r,o=r"
+  when:
+    - ( ansible_facts.architecture is search("arm") and
+        ansible_facts.userspace_bits == "64" ) or
+      ansible_facts.architecture is search("aarch64")
+
 - name: Extract drone.tgz
   unarchive:
     src: "~{{ansible_ssh_user}}/drone.tar.gz"

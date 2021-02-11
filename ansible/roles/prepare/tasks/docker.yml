@@ -90,7 +90,7 @@
 #   ansible.builtin.shell:
 #     cmd: systemctl restart snap.docker.dockerd.service
 
-- name: install docker compose
+- name: install docker compose amd64
   get_url:
     url: https://github.com/docker/compose/releases/download/1.28.2/docker-compose-Linux-x86_64
     dest: /usr/local/bin/docker-compose
@@ -98,6 +98,15 @@
     group: docker
     mode: "u=rwx,g=rx,o="
   when: ansible_facts.architecture == "x86_64"
+
+# - name: install docker compose arm64
+#   pip:
+#     name: "docker-compose"
+#     # extra_args: --ignore-installed
+#   when:
+#     - ( ansible_facts.architecture is search("arm") and
+#         ansible_facts.userspace_bits == "64" ) or
+#       ansible_facts.architecture is search("aarch64")
 
 - name: create app data folder
   file:

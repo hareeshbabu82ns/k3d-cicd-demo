@@ -8,6 +8,7 @@
           - k8s
           - openshift
           - requests
+          - docker-compose
         prereqs:
           - gcc
 

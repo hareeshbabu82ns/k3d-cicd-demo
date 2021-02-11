@@ -8,4 +8,5 @@
   apt:
     pkg:
     - sqlite3
-    state: present    
+    - apache2-utils
+    state: present
