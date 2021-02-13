@@ -27,9 +27,6 @@ steps:
     SERVER_DOMAIN:
       from_secret: server_domain
   commands:
-    # - echo '192.168.86.40 unraid registry.unraid' | tee -a /etc/hosts
-    # - mkdir /etc/docker
-    # - docker system info
     - env
     - docker login -p $DPASS -u $DUSER docker.$SERVER_DOMAIN
     - cd react-nginx
@@ -47,7 +44,7 @@ steps:
 #       - latest
 #     # dockerfile: react-nginx/Dockerfile
 #     repo: test/react-nginx    
-#     registry: registry.unraid:33294
+#     registry: docker.$SERVER_DOMAIN
 #     insecure: true
 
 - name: react-nginx - deploy
